@@ -1,101 +1,47 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Examenresultaten 2025 Havo</title>
-<style>
-  body { font-family: Arial, sans-serif; max-width: 900px; margin: auto; padding: 20px; background: #f7f7f7;}
-  h1 { text-align: center; }
-  .vak { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1);}
-  label { display: block; margin-bottom: 5px; font-weight: bold;}
-  input[type=number] { width: 80px; padding: 5px; font-size: 1em; }
-  button { margin-top: 10px; padding: 8px 12px; font-size: 1em; cursor: pointer; }
-  .statistiek { margin-top: 10px; background: #eef; padding: 8px; border-radius: 5px; }
-</style>
+  <meta charset="UTF-8">
+  <title>Examenuitslagen</title>
 </head>
 <body>
+  <h1>Voer je examenuitslag in</h1>
 
-<h1>Examenresultaten 2025 Havo</h1>
-<p>Vul je behaalde punten in per vak en bekijk de gemiddelde punten en verwachte N-term.</p>
+  <label>Naam:</label>
+  <input type="text" id="naam"><br><br>
 
-<div id="vakken-container"></div>
+  <label>Aantal punten:</label>
+  <input type="number" id="punten"><br><br>
 
-<script>
-// Lijst van vakken, maximale punten
-const vakken = [
-  {naam: 'Frans', maxPunten: 50},
-  {naam: 'Duits', maxPunten: null},
-  {naam: 'Economie', maxPunten: null},
-  {naam: 'Bedrijfseconomie', maxPunten: null},
-  {naam: 'Geschiedenis', maxPunten: 67},
-  {naam: 'Nederlands', maxPunten: null},
-  {naam: 'Engels', maxPunten: null},
-  {naam: 'Wiskunde A', maxPunten: null},
-  {naam: 'Wiskunde B', maxPunten: null},
-  {naam: 'Natuurkunde', maxPunten: 76},
-  {naam: 'Scheikunde', maxPunten: null},
-  {naam: 'Biologie', maxPunten: null}
-];
+  <button onclick="opslaan()">Opslaan</button>
 
-// Punten per vak bewaren
-const resultaten = {};
-vakken.forEach(vak => resultaten[vak.naam] = []);
+  <h2>Opgeslagen resultaat:</h2>
+  <p id="resultaat"></p>
 
-const container = document.getElementById('vakken-container');
+  <script>
+    function opslaan() {
+      const naam = document.getElementById('naam').value;
+      const punten = document.getElementById('punten').value;
 
-vakken.forEach(vak => {
-  const maxText = vak.maxPunten !== null ? ` (max ${vak.maxPunten} punten)` : '';
-  const div = document.createElement('div');
-  div.className = 'vak';
-  div.innerHTML = `
-    <label for="input-${vak.naam}">${vak.naam}${maxText} - Behaalde punten:</label>
-    <input type="number" id="input-${vak.naam}" min="0" step="0.1" />
-    <button onclick="submitPunten('${vak.naam}')">Verstuur punten</button>
-    <div class="statistiek" id="stats-${vak.naam}">Geen data</div>
-  `;
-  container.appendChild(div);
-});
+      // Sla op in localStorage
+      localStorage.setItem('naam', naam);
+      localStorage.setItem('punten', punten);
 
-// Bereken N-term: N-term = 1.5 - 0.01 * gemiddeld, minimaal 0.5
-function berekenNTerm(gemiddelde) {
-  let nTerm = 1.5 - 0.01 * gemiddelde;
-  if (nTerm < 0.5) nTerm = 0.5;
-  return nTerm.toFixed(2);
-}
+      toonResultaat();
+    }
 
-function submitPunten(vakNaam) {
-  const vak = vakken.find(v => v.naam === vakNaam);
-  const input = document.getElementById(`input-${vakNaam}`);
-  const waarde = parseFloat(input.value);
-  if (isNaN(waarde) || waarde < 0) {
-    alert('Voer een geldig punt in (niet negatief).');
-    return;
-  }
-  if (vak.maxPunten !== null && waarde > vak.maxPunten) {
-    alert(`Maximaal te behalen punten voor ${vakNaam} is ${vak.maxPunten}.`);
-    return;
-  }
-  resultaten[vakNaam].push(waarde);
-  input.value = '';
-  updateStatistiek(vakNaam);
-}
+    function toonResultaat() {
+      const naam = localStorage.getItem('naam');
+      const punten = localStorage.getItem('punten');
 
-function updateStatistiek(vakNaam) {
-  const data = resultaten[vakNaam];
-  if (data.length === 0) {
-    document.getElementById(`stats-${vakNaam}`).innerText = 'Geen data';
-    return;
-  }
-  const som = data.reduce((a,b) => a+b, 0);
-  const gemiddelde = (som / data.length);
-  const nTerm = berekenNTerm(gemiddelde);
-  document.getElementById(`stats-${vakNaam}`).innerHTML =
-    `<strong>Aantal ingevuld:</strong> ${data.length} <br>` +
-    `<strong>Gemiddelde punten:</strong> ${gemiddelde.toFixed(2)} <br>` +
-    `<strong>Verwachte N-term:</strong> ${nTerm}`;
-}
-</script>
+      if (naam && punten) {
+        document.getElementById('resultaat').innerText = `${naam} heeft ${punten} punten gehaald.`;
+      }
+    }
 
+    // Automatisch tonen bij openen
+    window.onload = toonResultaat;
+  </script>
 </body>
 </html>
+
